@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analysis - AI Interview Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Chart.js for the visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users me-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                AI Interview Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i data-feather="home" class="feather-small"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/saved-questions"><i data-feather="save" class="feather-small"></i> Saved Questions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/resume-analysis"><i data-feather="file-text" class="feather-small"></i> Resume Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="helpLink"><i data-feather="help-circle" class="feather-small"></i> Help</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm" id="settingsBtn">
+                        <i data-feather="settings" class="feather-small"></i> Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <header class="py-4">
+            <h1 class="fw-bold">Resume Analysis</h1>
+            <p class="text-muted">In-depth analysis of candidate's resume against job requirements</p>
+        </header>
+
+        <div class="main-content">
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <!-- Input Form -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Input Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="resumeAnalysisForm">
+                                <div class="mb-3">
+                                    <label for="resume_text" class="form-label fw-semibold">Resume/CV Content</label>
+                                    <div class="mb-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="loadSampleResumeBtn">
+                                            <i data-feather="file-text" class="feather-small"></i> Load Sample
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="clearResumeBtn">
+                                            <i data-feather="x" class="feather-small"></i> Clear
+                                        </button>
+                                    </div>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="resume_text" 
+                                        name="resume_text" 
+                                        rows="10" 
+                                        placeholder="Paste the candidate's resume/CV text here..."
+                                        required></textarea>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="job_description" class="form-label fw-semibold">Job Description</label>
+                                    <div class="mb-2">
+                                        <button type="button" class="btn btn-sm btn-outline-secondary me-2" id="loadSampleJobBtn">
+                                            <i data-feather="file-text" class="feather-small"></i> Load Sample
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" id="clearJobBtn">
+                                            <i data-feather="x" class="feather-small"></i> Clear
+                                        </button>
+                                    </div>
+                                    <textarea 
+                                        class="form-control" 
+                                        id="job_description" 
+                                        name="job_description" 
+                                        rows="10" 
+                                        placeholder="Paste the job description text here..."
+                                        required></textarea>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" id="analyzeBtn">
+                                        <span id="btnText">Analyze Resume</span>
+                                        <span id="loadingSpinner" class="spinner-border spinner-border-sm ms-2 d-none" role="status" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <!-- Analysis Results -->
+                    <div class="card shadow-sm">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Analysis Results</h5>
+                            <div class="btn-group" role="group" id="resultActions" style="display: none;">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="downloadReportBtn" title="Download Report">
+                                    <i data-feather="download" class="feather-small"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="printReportBtn" title="Print Report">
+                                    <i data-feather="printer" class="feather-small"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="emptyAnalysisState" class="text-center p-5">
+                                <div class="mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2 text-muted">
+                                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                                    </svg>
+                                </div>
+                                <h5>No Analysis Results Yet</h5>
+                                {% if not has_api_key %}
+                                <div class="alert alert-warning mt-3">
+                                    <strong>OpenAI API Key Required</strong>
+                                    <p>To use this feature, please add your OpenAI API key to the environment variables.</p>
+                                </div>
+                                {% endif %}
+                                <p class="text-muted">Fill out the resume and job description, then click 'Analyze Resume' to see detailed analysis</p>
+                            </div>
+                            
+                            <div id="analysisResults" class="d-none">
+                                <!-- Overall Match Score -->
+                                <div class="mb-4 text-center">
+                                    <div class="score-container">
+                                        <div class="score-circle">
+                                            <span id="overallMatchScore">85%</span>
+                                        </div>
+                                        <h4 class="mt-2">Overall Match Score</h4>
+                                        <p class="text-muted">Based on skill match, experience relevance, and qualification alignment</p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Skills Match -->
+                                <div class="section-card mb-4">
+                                    <h5>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-award me-2"><circle cx="12" cy="8" r="7"></circle><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline></svg>
+                                        Skills Match
+                                    </h5>
+                                    <div class="chart-container">
+                                        <canvas id="skillsChart"></canvas>
+                                    </div>
+                                    <div class="mt-3">
+                                        <h6>Key Strengths:</h6>
+                                        <ul id="keyStrengths" class="mb-3"></ul>
+                                        
+                                        <h6>Skill Gaps:</h6>
+                                        <ul id="skillGaps"></ul>
+                                    </div>
+                                </div>
+                                
+                                <!-- Experience Analysis -->
+                                <div class="section-card mb-4">
+                                    <h5>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-briefcase me-2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                        Experience Analysis
+                                    </h5>
+                                    <div id="experienceAnalysis"></div>
+                                </div>
+                                
+                                <!-- Education & Qualifications -->
+                                <div class="section-card mb-4">
+                                    <h5>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-book me-2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+                                        Education & Qualifications
+                                    </h5>
+                                    <div id="educationAnalysis"></div>
+                                </div>
+                                
+                                <!-- Recommendations -->
+                                <div class="section-card">
+                                    <h5>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-message-square me-2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                                        Interview Recommendations
+                                    </h5>
+                                    <div id="recommendations"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="py-4 text-center text-muted">
+            <p class="mb-0">AI Interview Question Generator © 2024</p>
+        </footer>
+    </div>
+
+    <!-- Help Modal (same as in index.html) -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">Help & Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Getting Started
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>The Resume Analysis tool helps you evaluate how well a candidate's resume matches a job description.</p>
+                                    <p>To get started:</p>
+                                    <ol>
+                                        <li>Paste the candidate's resume/CV text into the first text box</li>
+                                        <li>Paste the job description into the second text box</li>
+                                        <li>Click "Analyze Resume"</li>
+                                    </ol>
+                                    <p>The AI will analyze both texts and provide insights on skills match, experience relevance, and qualification alignment.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Understanding the Results
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>The analysis results include:</p>
+                                    <ul>
+                                        <li><strong>Overall Match Score:</strong> A percentage indicating how well the candidate matches the job requirements</li>
+                                        <li><strong>Skills Match:</strong> Visual representation of required skills vs. candidate skills</li>
+                                        <li><strong>Experience Analysis:</strong> Assessment of the candidate's relevant experience</li>
+                                        <li><strong>Education & Qualifications:</strong> Analysis of educational background against requirements</li>
+                                        <li><strong>Interview Recommendations:</strong> Suggested areas to focus on during the interview</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Exporting & Sharing
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>After generating analysis results, you can:</p>
+                                    <ul>
+                                        <li><strong>Download Report:</strong> Save the analysis as a PDF document</li>
+                                        <li><strong>Print Report:</strong> Print the analysis for reference during interviews</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    API Key Information
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>This tool requires an OpenAI API key to function. Your API key is used to access OpenAI's powerful language models for analyzing resumes and job descriptions.</p>
+                                    <p>You can enter your API key in the Settings section. The key is stored securely and only for the duration of your session.</p>
+                                    <p>If you don't have an API key, you can get one from the <a href="https://platform.openai.com/account/api-keys" target="_blank">OpenAI website</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (same as in index.html) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="mb-3">
+                            <label for="apiKeyInput" class="form-label">OpenAI API Key</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="apiKeyInput" placeholder="Enter your OpenAI API key">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                    <i data-feather="eye" class="feather-small"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Your API key will be securely stored for this session only.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="themeSelect" class="form-label">Theme</label>
+                            <select class="form-select" id="themeSelect">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System Default</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="langSelect" class="form-label">Language</label>
+                            <select class="form-select" id="langSelect">
+                                <option value="en">English</option>
+                                <option value="ar">العربية (Arabic)</option>
+                                <option value="es">Español (Spanish)</option>
+                                <option value="fr">Français (French)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and other scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{{ url_for('static', filename='js/resume_analysis.js') }}"></script>
+</body>
+</html>

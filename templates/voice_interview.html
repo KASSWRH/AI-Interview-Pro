@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Interview - AI Interview Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/voice_interview.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users me-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                AI Interview Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i data-feather="home" class="feather-small"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/saved-questions"><i data-feather="save" class="feather-small"></i> Saved Questions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/resume-analysis"><i data-feather="file-text" class="feather-small"></i> Resume Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/voice-interview"><i data-feather="mic" class="feather-small"></i> Voice Interview</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="helpLink"><i data-feather="help-circle" class="feather-small"></i> Help</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm" id="settingsBtn">
+                        <i data-feather="settings" class="feather-small"></i> Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <header class="py-4">
+            <h1 class="fw-bold">AI Voice Interview Simulator</h1>
+            <p class="text-muted">Practice interviews with our AI interviewer through voice interaction</p>
+        </header>
+
+        <div class="main-content">
+            <div class="row mb-4">
+                <div class="col-lg-6">
+                    <!-- Setup Panel -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">Interview Setup</h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="voiceInterviewSetupForm">
+                                <div class="mb-3">
+                                    <label for="interview_position" class="form-label fw-semibold">Position/Role</label>
+                                    <input type="text" class="form-control" id="interview_position" 
+                                        placeholder="e.g. Front-End Developer, Project Manager" required>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="interview_level" class="form-label fw-semibold">Experience Level</label>
+                                    <select class="form-select" id="interview_level" required>
+                                        <option value="">Select experience level</option>
+                                        <option value="entry">Entry Level</option>
+                                        <option value="junior">Junior (1-2 years)</option>
+                                        <option value="mid">Mid-Level (3-5 years)</option>
+                                        <option value="senior">Senior (5+ years)</option>
+                                        <option value="lead">Lead/Manager</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">Focus Areas</label>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="technical" id="technical_focus" checked>
+                                                <label class="form-check-label" for="technical_focus">
+                                                    Technical Skills
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="experience" id="experience_focus" checked>
+                                                <label class="form-check-label" for="experience_focus">
+                                                    Work Experience
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="behavioral" id="behavioral_focus" checked>
+                                                <label class="form-check-label" for="behavioral_focus">
+                                                    Behavioral Questions
+                                                </label>
+                                            </div>
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="problem_solving" id="problem_solving_focus" checked>
+                                                <label class="form-check-label" for="problem_solving_focus">
+                                                    Problem Solving
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="interview_duration" class="form-label fw-semibold">Interview Duration</label>
+                                    <select class="form-select" id="interview_duration" required>
+                                        <option value="short">Short (5-10 minutes)</option>
+                                        <option value="medium" selected>Medium (10-20 minutes)</option>
+                                        <option value="long">Long (20-30 minutes)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label for="candidate_resume" class="form-label fw-semibold">Your Resume (Optional)</label>
+                                    <textarea class="form-control" id="candidate_resume" rows="6" 
+                                        placeholder="Paste your resume to personalize the interview questions (optional)"></textarea>
+                                    <div class="form-text">Providing your resume will help create more personalized questions</div>
+                                </div>
+                                
+                                <div class="d-grid">
+                                    <button type="submit" class="btn btn-primary" id="startInterviewBtn">
+                                        <i data-feather="play" class="feather-small"></i> Start Voice Interview
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-6">
+                    <!-- Interview Panel -->
+                    <div class="card shadow-sm" id="interviewPanel">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Interview Session</h5>
+                            <div class="btn-group" role="group" id="interviewControls" style="display: none;">
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="pauseInterviewBtn" title="Pause">
+                                    <i data-feather="pause" class="feather-small"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" id="endInterviewBtn" title="End Interview">
+                                    <i data-feather="x-circle" class="feather-small"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="emptyInterviewState" class="text-center p-5">
+                                <div class="mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-mic text-muted">
+                                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                                    </svg>
+                                </div>
+                                <h5>No Active Interview</h5>
+                                {% if not has_api_key %}
+                                <div class="alert alert-warning mt-3">
+                                    <strong>OpenAI API Key Required</strong>
+                                    <p>To use this feature, please add your OpenAI API key to the environment variables.</p>
+                                </div>
+                                {% endif %}
+                                <p class="text-muted mb-4">Configure your interview settings on the left panel and click 'Start Voice Interview' to begin</p>
+                                <div class="text-start">
+                                    <h6>How it works:</h6>
+                                    <ol class="small text-muted">
+                                        <li>Fill out the interview setup form</li>
+                                        <li>Click "Start Voice Interview"</li>
+                                        <li>Allow microphone access when prompted</li>
+                                        <li>Listen to AI interviewer questions</li>
+                                        <li>Respond naturally using your voice</li>
+                                        <li>Receive feedback after the interview</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <div id="activeInterviewState" class="d-none">
+                                <div class="interview-header text-center mb-4">
+                                    <div class="mb-3 position-relative">
+                                        <div class="audio-visualizer">
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                            <div class="bar"></div>
+                                        </div>
+                                    </div>
+                                    <div class="status-badge mb-2">
+                                        <span class="badge bg-primary" id="interviewStatus">AI is speaking...</span>
+                                    </div>
+                                    <div class="time-display small text-muted">
+                                        Duration: <span id="interviewTime">00:00</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="conversation-container mb-4">
+                                    <div id="conversationHistory" class="conversation-history">
+                                        <!-- Conversation history will be added here -->
+                                    </div>
+                                </div>
+                                
+                                <div class="microphone-status text-center">
+                                    <button class="btn btn-outline-primary rounded-circle p-3 mic-btn" id="microphoneBtn">
+                                        <i data-feather="mic" class="feather-small"></i>
+                                    </button>
+                                    <p class="small text-muted mt-2">Press to speak / Listen for AI response</p>
+                                </div>
+                            </div>
+                            
+                            <div id="interviewCompleteState" class="d-none">
+                                <div class="text-center mb-4">
+                                    <div class="mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-check-circle text-success">
+                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                        </svg>
+                                    </div>
+                                    <h4>Interview Complete</h4>
+                                    <p class="text-muted">Great job! You've completed the voice interview.</p>
+                                </div>
+                                
+                                <div class="interview-summary mb-4">
+                                    <h5>Interview Summary</h5>
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="summary-item">
+                                                        <span class="fw-semibold">Position:</span>
+                                                        <span id="summaryPosition">Front-End Developer</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="summary-item">
+                                                        <span class="fw-semibold">Duration:</span>
+                                                        <span id="summaryDuration">15:42</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="summary-item">
+                                                        <span class="fw-semibold">Questions Asked:</span>
+                                                        <span id="summaryQuestions">12</span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <div class="summary-item">
+                                                        <span class="fw-semibold">Completion:</span>
+                                                        <span id="summaryCompletion">100%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="interview-feedback mb-4">
+                                    <h5>AI Feedback</h5>
+                                    <div id="interviewFeedback" class="interview-feedback-container">
+                                        <!-- Feedback will be added here -->
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between">
+                                    <button class="btn btn-outline-primary" id="newInterviewBtn">
+                                        <i data-feather="refresh-cw" class="feather-small"></i> New Interview
+                                    </button>
+                                    <button class="btn btn-primary" id="downloadTranscriptBtn">
+                                        <i data-feather="download" class="feather-small"></i> Download Transcript
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="py-4 text-center text-muted">
+            <p class="mb-0">AI Interview Question Generator © 2024</p>
+        </footer>
+    </div>
+
+    <!-- Help Modal (same as in index.html) -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">Voice Interview Help</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Getting Started with Voice Interviews
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>The Voice Interview Simulator allows you to practice interviews verbally with an AI interviewer.</p>
+                                    <p>To get started:</p>
+                                    <ol>
+                                        <li>Fill out the interview setup form with your target position and experience level</li>
+                                        <li>Select focus areas for your interview questions</li>
+                                        <li>Choose your preferred interview duration</li>
+                                        <li>Optionally paste your resume to personalize the questions</li>
+                                        <li>Click "Start Voice Interview" to begin</li>
+                                    </ol>
+                                    <p><strong>Tip:</strong> Make sure your microphone is working properly before starting.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    During the Interview
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>During the voice interview:</p>
+                                    <ul>
+                                        <li><strong>Listen:</strong> The AI will ask you questions verbally</li>
+                                        <li><strong>Respond:</strong> Answer naturally using your voice</li>
+                                        <li><strong>Pause/Resume:</strong> Use the controls to pause if needed</li>
+                                        <li><strong>End Early:</strong> You can end the interview at any time</li>
+                                    </ul>
+                                    <p>The system will transcribe your answers and provide real-time visual feedback.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    After the Interview
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>After completing the interview, you'll receive:</p>
+                                    <ul>
+                                        <li><strong>Summary Statistics:</strong> Duration, questions asked, etc.</li>
+                                        <li><strong>AI Feedback:</strong> Analysis of your answers with suggestions</li>
+                                        <li><strong>Transcript:</strong> Full text of the conversation</li>
+                                    </ul>
+                                    <p>You can download the transcript and feedback for future reference.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Technical Requirements
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>For the best experience:</p>
+                                    <ul>
+                                        <li>Use an up-to-date browser (Chrome, Firefox, Safari, Edge)</li>
+                                        <li>Allow microphone access when prompted</li>
+                                        <li>Use a quality microphone for better recognition</li>
+                                        <li>Find a quiet environment with minimal background noise</li>
+                                    </ul>
+                                    <p>This feature requires an OpenAI API key and uses OpenAI's speech-to-text and text-to-speech capabilities.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (same as in index.html) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="mb-3">
+                            <label for="apiKeyInput" class="form-label">OpenAI API Key</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="apiKeyInput" placeholder="Enter your OpenAI API key">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                    <i data-feather="eye" class="feather-small"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Your API key will be securely stored for this session only.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="voiceSelect" class="form-label">AI Voice</label>
+                            <select class="form-select" id="voiceSelect">
+                                <option value="alloy">Alloy (Neutral)</option>
+                                <option value="echo">Echo (Male)</option>
+                                <option value="fable">Fable (Female)</option>
+                                <option value="onyx">Onyx (Male, Deeper)</option>
+                                <option value="nova">Nova (Female, Warmer)</option>
+                                <option value="shimmer">Shimmer (Female, Clear)</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="speechSpeedSelect" class="form-label">AI Speech Speed</label>
+                            <select class="form-select" id="speechSpeedSelect">
+                                <option value="0.7">Slower</option>
+                                <option value="1.0" selected>Normal</option>
+                                <option value="1.3">Faster</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="themeSelect" class="form-label">Theme</label>
+                            <select class="form-select" id="themeSelect">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System Default</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="langSelect" class="form-label">Language</label>
+                            <select class="form-select" id="langSelect">
+                                <option value="en">English</option>
+                                <option value="ar">العربية (Arabic)</option>
+                                <option value="es">Español (Spanish)</option>
+                                <option value="fr">Français (French)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and other scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{{ url_for('static', filename='js/voice_interview.js') }}"></script>
+</body>
+</html>

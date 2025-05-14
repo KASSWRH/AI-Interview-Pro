@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Questions - AI Interview Pro</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users me-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                AI Interview Pro
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i data-feather="home" class="feather-small"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/saved-questions"><i data-feather="save" class="feather-small"></i> Saved Questions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="resumeAnalysisLink"><i data-feather="file-text" class="feather-small"></i> Resume Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="helpLink"><i data-feather="help-circle" class="feather-small"></i> Help</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm" id="settingsBtn">
+                        <i data-feather="settings" class="feather-small"></i> Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <header class="py-4">
+            <h1 class="fw-bold">Saved Interview Questions</h1>
+            <p class="text-muted">Access and manage your previously generated interview questions</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Saved Questions List -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Your Saved Question Sets</h5>
+                            <a href="/" class="btn btn-primary btn-sm">
+                                <i data-feather="plus" class="feather-small"></i> Generate New Questions
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% if questions %}
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Date Created</th>
+                                                <th>Question Count</th>
+                                                <th>Notes</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for question_set in questions %}
+                                            <tr>
+                                                <td>{{ question_set.name }}</td>
+                                                <td>{{ question_set.date_created }}</td>
+                                                <td>
+                                                    {% set total = question_set.questions.technical_questions|length + 
+                                                              question_set.questions.experience_questions|length + 
+                                                              question_set.questions.behavioral_questions|length + 
+                                                              question_set.questions.skill_gap_questions|length %}
+                                                    {{ total }} questions
+                                                </td>
+                                                <td>{{ question_set.notes[:50] }}{% if question_set.notes|length > 50 %}...{% endif %}</td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-sm btn-outline-primary view-btn" data-id="{{ question_set.id }}">
+                                                            <i data-feather="eye" class="feather-small"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-primary print-btn" data-id="{{ question_set.id }}">
+                                                            <i data-feather="printer" class="feather-small"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger delete-btn" data-id="{{ question_set.id }}">
+                                                            <i data-feather="trash-2" class="feather-small"></i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <div class="text-center p-5">
+                                    <div class="mb-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather feather-save text-muted">
+                                            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                            <polyline points="7 3 7 8 15 8"></polyline>
+                                        </svg>
+                                    </div>
+                                    <h5>No Saved Questions Yet</h5>
+                                    <p class="text-muted">Generate interview questions and save them to access later</p>
+                                    <a href="/" class="btn btn-primary mt-2">Generate Questions</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="py-4 text-center text-muted">
+            <p class="mb-0">AI Interview Question Generator © 2024</p>
+        </footer>
+    </div>
+
+    <!-- View Question Set Modal -->
+    <div class="modal fade" id="viewQuestionSetModal" tabindex="-1" aria-labelledby="viewQuestionSetModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewQuestionSetModalLabel">Question Set Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="questionSetDetails">
+                        <h4 id="questionSetName" class="mb-3"></h4>
+                        
+                        <div class="mb-3">
+                            <strong>Notes:</strong>
+                            <p id="questionSetNotes" class="mb-4"></p>
+                        </div>
+                        
+                        <!-- Technical Questions -->
+                        <div class="question-section mb-4">
+                            <h5 class="section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-code me-2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                                Technical Questions
+                            </h5>
+                            <ul id="modalTechnicalQuestions" class="question-list"></ul>
+                        </div>
+                        
+                        <!-- Experience Questions -->
+                        <div class="question-section mb-4">
+                            <h5 class="section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-briefcase me-2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>
+                                Experience Questions
+                            </h5>
+                            <ul id="modalExperienceQuestions" class="question-list"></ul>
+                        </div>
+                        
+                        <!-- Behavioral Questions -->
+                        <div class="question-section mb-4">
+                            <h5 class="section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-users me-2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                Behavioral Questions
+                            </h5>
+                            <ul id="modalBehavioralQuestions" class="question-list"></ul>
+                        </div>
+                        
+                        <!-- Skill Gap Questions -->
+                        <div class="question-section">
+                            <h5 class="section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-target me-2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                                Skill Gap Questions
+                            </h5>
+                            <ul id="modalSkillGapQuestions" class="question-list"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="printModalQuestionsBtn">
+                        <i data-feather="printer" class="feather-small"></i> Print
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this question set? This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn" data-id="">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal (same as in index.html) -->
+    <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="helpModalLabel">Help & Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="helpAccordion">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOne">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                    Getting Started
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>Welcome to the AI Interview Question Generator! This tool helps you create tailored interview questions based on a candidate's resume and a job description.</p>
+                                    <p>To get started:</p>
+                                    <ol>
+                                        <li>Paste the candidate's resume/CV text into the first text box</li>
+                                        <li>Paste the job description into the second text box</li>
+                                        <li>Click "Generate Interview Questions"</li>
+                                    </ol>
+                                    <p>The AI will analyze both texts and generate relevant questions in four categories: Technical, Experience, Behavioral, and Skill Gap questions.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    Advanced Options
+                                </button>
+                            </h2>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>To customize your generated questions, click on the "Advanced Options" dropdown before generating questions.</p>
+                                    <ul>
+                                        <li><strong>Number of Questions:</strong> Control how many questions are generated per category</li>
+                                        <li><strong>Focus Area:</strong> Prioritize certain types of questions (technical, experience, etc.)</li>
+                                        <li><strong>Difficulty Level:</strong> Adjust the complexity level of the generated questions</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Saving & Exporting
+                                </button>
+                            </h2>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>After generating questions, you can:</p>
+                                    <ul>
+                                        <li><strong>Save Questions:</strong> Store questions for later use in the "Saved Questions" section</li>
+                                        <li><strong>Print Questions:</strong> Print out the questions for use in an interview</li>
+                                        <li><strong>Download as PDF:</strong> Export the questions as a PDF file</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    API Key Information
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#helpAccordion">
+                                <div class="accordion-body">
+                                    <p>This tool requires an OpenAI API key to function. Your API key is used to access OpenAI's powerful language models for generating interview questions.</p>
+                                    <p>You can enter your API key in the Settings section. The key is stored securely and only for the duration of your session.</p>
+                                    <p>If you don't have an API key, you can get one from the <a href="https://platform.openai.com/account/api-keys" target="_blank">OpenAI website</a>.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Got it!</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal (same as in index.html) -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="mb-3">
+                            <label for="apiKeyInput" class="form-label">OpenAI API Key</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="apiKeyInput" placeholder="Enter your OpenAI API key">
+                                <button class="btn btn-outline-secondary" type="button" id="toggleApiKey">
+                                    <i data-feather="eye" class="feather-small"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Your API key will be securely stored for this session only.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="themeSelect" class="form-label">Theme</label>
+                            <select class="form-select" id="themeSelect">
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="system">System Default</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="langSelect" class="form-label">Language</label>
+                            <select class="form-select" id="langSelect">
+                                <option value="en">English</option>
+                                <option value="ar">العربية (Arabic)</option>
+                                <option value="es">Español (Spanish)</option>
+                                <option value="fr">Français (French)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and other scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="{{ url_for('static', filename='js/saved_questions.js') }}"></script>
+</body>
+</html>
